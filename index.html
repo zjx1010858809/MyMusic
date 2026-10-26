@@ -92,12 +92,113 @@ input[type=range]{-webkit-appearance:none;appearance:none;height:4px;border-radi
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:var(--ac);cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.25)}
 input[type=range]::-moz-range-thumb{width:13px;height:13px;border:none;border-radius:50%;background:var(--ac);cursor:pointer}
 .vol{width:80px;flex:none}
+/* ========== 响应式适配 ========== */
+/* 平板：侧栏改为横向专辑条 */
 @media(max-width:860px){
-  main{flex-direction:column}
+  main{flex-direction:column;align-items:stretch}
   aside{width:100%;position:static;max-height:210px}
+  .section{flex:0 0 auto}   /* column 布局下重置桌面端的 flex:1 */
   th.a,.al{display:none}
+  td.ar{display:none}   /* 表头与数据列必须同步隐藏，否则列错位 */
   .np{width:150px}
   .vol{display:none}
+  /* 页头在窄屏下同样会挤压标题，先做基础换行 */
+  .hd{flex-wrap:wrap;gap:12px 14px}
+  .tt{min-width:0}
+  .tt h1,.tt p{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+}
+
+/* 手机：页头改为两行堆叠，消除横向溢出 */
+@media(max-width:640px){
+  :root{--bar:132px}
+  body{padding-bottom:var(--bar)}
+
+  /* 页头：允许换行，标题区独占一行且不被挤压 */
+  .hd{flex-wrap:wrap;gap:10px 12px;padding:12px 14px}
+  .logo{width:36px;height:36px;border-radius:9px;font-size:17px}
+  .tt{flex:1 1 auto;min-width:0}
+  .tt h1{font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tt p{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sp{display:none}
+
+  /* 统计条：横向铺满一行 */
+  .stats{order:3;flex:1 1 100%;gap:6px}
+  .st{flex:1;text-align:center;padding:6px 8px;font-size:11px}
+
+  /* 搜索框与按钮：各占整行，不再被截断 */
+  .search{order:4;flex:1 1 100%;min-width:0}
+  .search input{padding:10px 13px 10px 34px;font-size:16px} /* 16px 防 iOS 聚焦缩放 */
+  .btn.pri{order:5;flex:1 1 100%;padding:11px 15px;font-size:14px}
+
+  /* 专辑栏：横向滑动条，不再吃掉大片竖向空间 */
+  aside{max-height:none;display:block}
+  .aside-h{padding:10px 14px;border-bottom:1px solid var(--line)}
+  .aside-h::after{content:"← 左右滑动 →";font-size:11px;color:var(--tx3);flex:none;font-weight:400}
+  .alist{display:flex;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;gap:8px;padding:10px 14px;max-height:none;flex:none;-webkit-overflow-scrolling:touch;scrollbar-width:none;scroll-snap-type:x proximity;
+    -webkit-mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 26px),transparent 100%);
+    mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 26px),transparent 100%)}
+  .alist::-webkit-scrollbar{display:none}
+  .alist .al{flex:none;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;margin:0;padding:7px 12px;border:1px solid var(--line);border-left-width:1px;border-radius:20px;background:#fff;scroll-snap-align:start}
+  .alist .al.on{border-color:var(--ac);border-left-color:var(--ac);background:#eaf3fd}
+  .alist .al .nm{flex:none;font-size:12.5px;max-width:150px}
+  .alist .al .ct{font-size:10.5px;padding:1px 6px}
+
+  /* 主区两栏改为纵向时收紧间距；
+     align-items 需从 flex-start 改为 stretch，否则 aside 与 section 会重叠 */
+  main{flex-direction:column;align-items:stretch;gap:12px;padding:14px 0 20px}
+
+  /* 曲目表：隐藏歌手列，压缩内边距 */
+  .wrap{padding:0 12px}
+  /* 移动端改用普通块级流：超长表格在 flex column 容器里会被顶破并与 aside 重叠 */
+  main{display:block;padding:14px 0 20px}
+  aside{margin-bottom:12px}
+  .section{border-radius:10px}
+  .sh{padding:11px 14px}
+  .sh h2{font-size:14px}
+  th,td{padding:8px 10px}
+  th.n{width:32px}
+  td.nm{font-size:13px}
+  .eq{display:none}
+
+  /* 播放条：三层（信息 / 控制 / 进度），大按钮不误触 */
+  #bar{height:auto;padding:8px 0 10px}
+  #bar .wrap{flex-wrap:wrap;gap:8px;padding:0 12px}
+  .np{order:1;width:auto;flex:1 1 100%;min-width:0;gap:9px}
+  .np .art{width:36px;height:36px;font-size:15px;border-radius:7px}
+  .np .tt{font-size:12.5px}
+  .np .al{font-size:11px}
+  .ctr{order:2;flex:0 1 auto;gap:10px;justify-content:center}
+  .pb{width:44px;height:44px}
+  .sb{width:34px;height:34px}
+  /* 静音按钮并入控制行（它在 DOM 里位于 .seek 之后，需显式定序） */
+  #bar #mute{order:2;margin-left:auto;align-self:center}
+  .vol{display:none}
+
+  /* 进度条独占一行 */
+  .seek{order:3;flex:1 1 100%;gap:8px}
+  .tm{font-size:11px;min-width:34px}
+  input[type=range]{min-width:0}
+  input[type=range]::-webkit-slider-thumb{width:17px;height:17px}  /* 触摸目标放大 */
+}
+
+/* 超窄屏（iPhone SE 等 320px 级） */
+@media(max-width:360px){
+  .tt h1{font-size:15px}
+  .tt p{display:none}
+  .stats .st{font-size:10px;padding:5px 6px}
+  .np .art{display:none}
+  .ctr{gap:4px}
+  .sb{width:28px;height:28px}
+  .sb#rep{display:none}
+}
+
+/* 触摸设备：加大可点击区域 */
+@media(hover:none) and (pointer:coarse){
+  .sb{width:36px;height:36px}
+  .pb{width:44px;height:44px}
+  .ico{width:32px;height:32px}
+  .btn{padding:11px 16px}
+  tr.r td{padding:11px 10px}
 }
 </style></head>
 <body>
